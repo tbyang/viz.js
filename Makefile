@@ -1,9 +1,9 @@
 PREFIX = $(abspath ./prefix)
 
-.PHONY: all clean clobber expat graphviz
+.PHONY: all clean clobber graphviz
 
 
-all: expat graphviz viz.js
+all: graphviz viz.js
 
 clean:
 	rm -f module.js viz.js
@@ -16,15 +16,11 @@ viz.js: src/pre.js module.js src/post.js
 	cat $^ > $@
 
 module.js: src/viz.c
-	emcc -v -Os --closure 1 --memory-init-file 0 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORTED_FUNCTIONS="['_vizRenderFromString', '_aglasterr', '_dtextract', '_Dtqueue']" -s EXPORTED_RUNTIME_METHODS="['Pointer_stringify', 'ccall', 'UTF8ToString']" -o $@ $< -I$(PREFIX)/include -I$(PREFIX)/include/graphviz -L$(PREFIX)/lib -L$(PREFIX)/lib/graphviz -lgvplugin_core -lgvplugin_dot_layout -lgvplugin_neato_layout -lcdt -lcgraph -lgvc -lgvpr -lpathplan -lexpat -lxdot -lz
+	emcc -v -Os --closure 1 --memory-init-file 0 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORTED_FUNCTIONS="['_vizRenderFromString', '_aglasterr', '_dtextract', '_Dtqueue']" -s EXPORTED_RUNTIME_METHODS="['Pointer_stringify', 'ccall', 'UTF8ToString']" -o $@ $< -I$(PREFIX)/include -I$(PREFIX)/include/graphviz -L$(PREFIX)/lib -L$(PREFIX)/lib/graphviz -lgvplugin_core -lgvplugin_dot_layout -lgvplugin_neato_layout -lcdt -lcgraph -lgvc -lgvpr -lpathplan -lxdot -lz
 
 
 $(PREFIX):
 	mkdir -p $(PREFIX)
-
-expat: | build/expat-2.1.0 $(PREFIX)
-	cd build/expat-2.1.0 && emconfigure ./configure --disable-shared --prefix=$(PREFIX)
-	cd build/expat-2.1.0 && emmake make buildlib installlib
 
 graphviz: | build/graphviz-2.38.0 $(PREFIX)
 	cd build/graphviz-2.38.0 && ./configure
@@ -40,18 +36,12 @@ graphviz: | build/graphviz-2.38.0 $(PREFIX)
 build:
 	mkdir -p build
 
-build/expat-2.1.0: sources/expat-2.1.0.tar.gz | build
-	tar -zxf sources/expat-2.1.0.tar.gz -C build
-
 build/graphviz-2.38.0: sources/graphviz-2.38.0.tar.gz | build
 	tar -zxf sources/graphviz-2.38.0.tar.gz -C build
 
 
 sources:
 	mkdir -p sources
-
-sources/expat-2.1.0.tar.gz: | sources
-	curl -L "http://sourceforge.net/projects/expat/files/expat/2.1.0/expat-2.1.0.tar.gz/download" -o sources/expat-2.1.0.tar.gz
 
 sources/graphviz-2.38.0.tar.gz: | sources
 	curl -L "http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.38.0.tar.gz" -o sources/graphviz-2.38.0.tar.gz
