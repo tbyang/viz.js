@@ -4,10 +4,12 @@ QUnit.test("result from first graph in input is returned for multiple invocation
   var result;
   
   result = Viz("digraph A {} digraph B {}", { format: "xdot" });
+  console.log(result);
   assert.ok(result.match(/digraph A/), "Result should contain \"digraph A\"");
   assert.notOk(result.match(/digraph B/), "Result should not contain \"digraph B\"");
 
   result = Viz("digraph B {} digraph A {}", { format: "xdot" });
+  console.log(result);
   assert.ok(result.match(/digraph B/), "Result should contain \"digraph B\"");
   assert.notOk(result.match(/digraph A/), "Result should not contain \"digraph A\"");
 });
