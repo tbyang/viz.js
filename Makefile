@@ -1,43 +1,44 @@
-PREFIX = $(abspath ./prefix)
+BUILD_LITE = $(abspath ./build-lite)
+PREFIX_LITE = $(abspath ./prefix-lite)
 
-.PHONY: all clean clobber graphviz
+.PHONY: all clean clobber graphviz-lite
 
 
-all: graphviz viz.js
+all: graphviz-lite viz-lite.js
 
 clean:
-	rm -f module.js viz.js
+	rm -f module-lite.js viz-lite.js
 
 clobber: | clean
-	rm -rf build prefix
+	rm -rf $(BUILD_LITE) $(PREFIX_LITE)
 
 
-viz.js: src/pre.js module.js src/post.js
+viz-lite.js: src/pre.js module-lite.js src/post.js
 	cat $^ > $@
 
-module.js: src/viz.c
-	emcc -v -Os --closure 1 --memory-init-file 0 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORTED_FUNCTIONS="['_vizRenderFromString', '_aglasterr', '_dtextract', '_Dtqueue', '_dtopen', '_dtdisc', '_Dtobag', '_Dtoset', '_Dttree']" -s EXPORTED_RUNTIME_METHODS="['Pointer_stringify', 'ccall', 'UTF8ToString']" -o $@ $< -I$(PREFIX)/include -I$(PREFIX)/include/graphviz -L$(PREFIX)/lib -L$(PREFIX)/lib/graphviz -lgvplugin_core -lgvplugin_dot_layout -lcdt -lcgraph -lgvc -lgvpr -lpathplan -lxdot -lz
+module-lite.js: src/viz.c
+	emcc -D VIZ_LITE -v -Os --closure 1 --memory-init-file 0 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORTED_FUNCTIONS="['_vizRenderFromString', '_aglasterr', '_dtextract', '_Dtqueue', '_dtopen', '_dtdisc', '_Dtobag', '_Dtoset', '_Dttree']" -s EXPORTED_RUNTIME_METHODS="['Pointer_stringify', 'ccall', 'UTF8ToString']" -o $@ $< -I$(PREFIX_LITE)/include -I$(PREFIX_LITE)/include/graphviz -L$(PREFIX_LITE)/lib -L$(PREFIX_LITE)/lib/graphviz -lgvplugin_core -lgvplugin_dot_layout -lcdt -lcgraph -lgvc -lgvpr -lpathplan -lxdot -lz
 
 
-$(PREFIX):
-	mkdir -p $(PREFIX)
+$(PREFIX_LITE):
+	mkdir -p $(PREFIX_LITE)
 
-graphviz: | build/graphviz-2.38.0 $(PREFIX)
-	cd build/graphviz-2.38.0 && ./configure
-	cd build/graphviz-2.38.0/lib/gvpr && make mkdefs
-	mkdir -p build/graphviz-2.38.0/FEATURE
-	cp hacks/FEATURE/sfio hacks/FEATURE/vmalloc build/graphviz-2.38.0/FEATURE
-	cd build/graphviz-2.38.0 && emconfigure ./configure --disable-ltdl --enable-static --disable-shared --prefix=$(PREFIX)
-	cd build/graphviz-2.38.0 && emmake make CFLAGS="-fno-common -Wno-implicit-function-declaration"
-	cd build/graphviz-2.38.0/lib && emmake make install
-	cd build/graphviz-2.38.0/plugin && emmake make install
+graphviz-lite: | $(BUILD_LITE)/graphviz-2.38.0 $(PREFIX_LITE)
+	cd $(BUILD_LITE)/graphviz-2.38.0 && ./configure
+	cd $(BUILD_LITE)/graphviz-2.38.0/lib/gvpr && make mkdefs
+	mkdir -p $(BUILD_LITE)/graphviz-2.38.0/FEATURE
+	cp hacks/FEATURE/sfio hacks/FEATURE/vmalloc $(BUILD_LITE)/graphviz-2.38.0/FEATURE
+	cd $(BUILD_LITE)/graphviz-2.38.0 && emconfigure ./configure --disable-ltdl --enable-static --disable-shared --prefix=$(PREFIX_LITE)
+	cd $(BUILD_LITE)/graphviz-2.38.0 && emmake make CFLAGS="-fno-common -Wno-implicit-function-declaration"
+	cd $(BUILD_LITE)/graphviz-2.38.0/lib && emmake make install
+	cd $(BUILD_LITE)/graphviz-2.38.0/plugin && emmake make install
 
 
-build:
-	mkdir -p build
+$(BUILD_LITE):
+	mkdir -p $(BUILD_LITE)
 
-build/graphviz-2.38.0: sources/graphviz-2.38.0.tar.gz | build
-	tar -zxf sources/graphviz-2.38.0.tar.gz -C build
+$(BUILD_LITE)/graphviz-2.38.0: sources/graphviz-2.38.0.tar.gz | $(BUILD_LITE)
+	tar -zxf sources/graphviz-2.38.0.tar.gz -C $(BUILD_LITE)
 
 
 sources:
