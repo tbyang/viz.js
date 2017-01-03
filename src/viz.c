@@ -5,6 +5,8 @@ extern gvplugin_library_t gvplugin_dot_layout_LTX_library;
 extern gvplugin_library_t gvplugin_neato_layout_LTX_library;
 extern gvplugin_library_t gvplugin_core_LTX_library;
 
+int aaglex_destroy();
+
 GVC_t *context = NULL;
 
 int vizErrorf(char *buf) {
@@ -46,6 +48,9 @@ char* vizRenderFromString(const char *src, const char *format, const char *engin
     // agmemread will continue to process graphs from the initial input. Set its *new* input to the empty string so that we don't go into an infinite loop.
     src = "";
   }
+  
+  // Reset scanner state.
+  aaglex_destroy();
 
   return result;
   
