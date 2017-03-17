@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/mdaines/viz.js/issues"
   },
-  "homepage": "https://github.com/mdaines/viz.js"
+  "homepage": "https://github.com/mdaines/viz.js",
+  "devDependencies": {
+    "express": "^4.15.2"
+  }
 }
